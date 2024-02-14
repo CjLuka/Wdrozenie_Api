@@ -1,0 +1,47 @@
+﻿@page "/messages"
+@inject ClientRabbit clientRabbit
+<h3>Messages</h3>
+<button @onclick="WywolajFunkcje">Wywołaj funkcję</button>
+
+@* <p>@message</p>
+ *@
+@code {
+
+	private void WywolajFunkcje()
+	{
+		clientRabbit.Client();
+	}
+	// private string message;
+
+	//    protected override void OnInitialized()
+	//    {
+	//        base.OnInitialized();
+
+	//        Task.Run(() => Client());
+	//    }
+
+	// public async void Client()
+	// {
+	// 	var factory = new ConnectionFactory() { HostName = "localhost" };
+
+	// 	using (var connection = factory.CreateConnection())
+	// 	using (var channel = connection.CreateModel())
+	// 	{
+	// 		channel.QueueDeclare(queue: "RabbitMq.01",
+	// 			durable: false,
+	// 			exclusive: false,
+	// 			autoDelete: false,
+	// 			arguments: null);
+
+	// 		var consumer = new EventingBasicConsumer(channel);
+
+	// 		consumer.Received += (sender, e) =>
+	// 		{
+	// 			var body = e.Body.ToArray();
+	// 			var message = Encoding.UTF8.GetString(body);
+	// 			//message = Encoding.UTF8.GetString(e.Body.ToArray());
+	// 		};
+
+	// 		channel.BasicConsume(queue: "RabbitMq.01", autoAck: true, consumer: consumer);
+	// 	}
+}
