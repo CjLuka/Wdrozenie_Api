@@ -1,5 +1,6 @@
 ﻿@page "/messages"
 @inject ClientRabbit clientRabbit
+@* @inject TestClientRabbit testClientRabbit *@
 <h3>Messages</h3>
 <button @onclick="WywolajFunkcje">Wywołaj funkcję</button>
 
@@ -7,9 +8,10 @@
  *@
 @code {
 
-	private void WywolajFunkcje()
+	protected async Task WywolajFunkcje()
 	{
-		clientRabbit.Client();
+		//testClientRabbit.Test();
+		await clientRabbit.Client();
 	}
 	// private string message;
 
