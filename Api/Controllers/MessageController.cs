@@ -22,13 +22,13 @@ namespace Api.Controllers
         public List<Message> messagesList = new List<Message>();
         public List<Message> messagesList2 = new List<Message>();
         [HttpPost]
-        public async Task<IActionResult> AddMessage1(string context, int userId)
+        public async Task<IActionResult> AddMessage1(string key, string userId, string email)
         {
 
-            User user = new User(1, "TestUser");
-            Message message = new Message(context, userId);
+            //User user = new User(1, "TestUser");
+            Message message = new Message(key, userId, email);
             messagesList.Add(message);
-            //await _hubContext.Clients.All.SendAsync("Message", message);
+
             var factory = new ConnectionFactory() 
             { 
                 HostName = "localhost",
@@ -37,18 +37,17 @@ namespace Api.Controllers
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-                channel.QueueDeclare(queue: "Test3",
-                    durable: true,
-                    exclusive: false,
-                    autoDelete: false,
-                    arguments: null);
+                string exchangeName = "my_exchange";
 
-				//var body = Encoding.UTF8.GetBytes(message.Context + message.UserId);
+                channel.ExchangeDeclare(exchange: exchangeName, type: "direct");
+
+
 				var jsonBody = JsonConvert.SerializeObject(message);
 				var body = Encoding.UTF8.GetBytes(jsonBody);
-				channel.BasicPublish("",
-                    "Test3",
-                    null, body);
+				channel.BasicPublish(exchange: exchangeName,
+                    routingKey: key,
+                    basicProperties: null,
+                    body: body);
 
             }
             return Ok(messagesList);
@@ -56,11 +55,11 @@ namespace Api.Controllers
 
         [HttpPost]
         [Route("Test")]
-        public async Task<IActionResult> Test(string context, int userId)
+        public async Task<IActionResult> Test(string key, string userId, string email)
         {
 
             User user = new User(1, "TestUser");
-            Message message = new Message(context, userId);
+            Message message = new Message(key, userId, email);
             messagesList2.Add(message);
             //await _hubContext.Clients.All.SendAsync("Message", message);
             var factory = new ConnectionFactory()
@@ -76,9 +75,7 @@ namespace Api.Controllers
                     exclusive: false,
                     autoDelete: false,
                     arguments: null);
-                //User user = new User(1, "TestUser");
-                //Message message = new Message(context, userId);
-                //messagesList.Add(message);
+
 
                 //var body = Encoding.UTF8.GetBytes(message.Context + message.UserId);
                 var jsonBody = JsonConvert.SerializeObject(message);
@@ -91,43 +88,6 @@ namespace Api.Controllers
             return Ok(messagesList);
         }
 
-        //[HttpGet]
-        //public async Task<string> GetMessage()
-        //{
-        //    string message;
-        //    var factory = new ConnectionFactory() { HostName = "localhost" };
-        //    using (var connection = factory.CreateConnection())
-        //    using (var channel = connection.CreateModel())
-        //    {
-        //        //channel.ExchangeDeclare(exchange: "test",
-        //        //        ExchangeType.Fanout,
-        //        //        true, false, null);
-        //        channel.QueueDeclare(queue: "RabbitMq.01",
-        //            durable: false,
-        //            exclusive: false,
-        //            autoDelete: false,
-        //            arguments: null);
-
-        //        var consumer = new EventingBasicConsumer(channel);
-
-        //        consumer.Received += (model, ea) =>
-        //        {
-        //            message = Encoding.UTF8.GetString(ea.Body.ToArray());
-        //            //InvokeAsync(StateHasChanged);
-        //        };
-
-        //        channel.BasicConsume(queue: "RabbitMq.01", autoAck: true, consumer: consumer);
-
-        //    }
-        //    return string.Empty;
-        //}
-
-        //    
-        //    //[HttpGet]
-        //    //public async Task<ActionResult<List<Message>>> AllMessages()
-        //    //{
-        //    //    return Ok(messagesList);
-        //    //} 
-        //}
+      
     }
 }
